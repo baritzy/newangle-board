@@ -22,7 +22,9 @@
      3. board header (battery, legend, rollup)
      4. groups + table (the monday board proper)
      5. editing affordances (inline editors, pickers, add row, archive)
+     5c. the points block ("מה שסיכמנו בינינו")
      6. dialogs (token settings)
+     6c. the meeting summaries archive (the rail and the reader)
      7. phone breakpoint
      8. print
 */
@@ -449,6 +451,36 @@ body.can-edit .sub-c.sub-st:hover{box-shadow:inset 0 0 0 2px rgba(255,255,255,.6
 .subarch-when{font-size:11.5px;line-height:16px;color:var(--ink2)}
 .subarch .btn-quiet{margin-inline-start:auto}
 
+/* --- 5c. the points block ------------------------------------------------- */
+
+/* "מה שסיכמנו בינינו": a group like any other, holding a flat list of points
+   rather than a table. Every row is built from the same parts a sub task row is
+   built from (the grip, the editable cells, the remove control at the end), so
+   the third level of the board reads as the same board. */
+.notes{padding:4px 12px 12px}
+.notes-lead{margin:0 0 8px;font-size:12.5px;line-height:18px;color:var(--ink2)}
+.notelist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:4px;background:var(--board)}
+.noteitem{display:grid;grid-template-columns:20px minmax(0,1fr) 116px 26px;align-items:stretch;min-height:36px}
+.noteitem+.noteitem{border-block-start:1px solid var(--line)}
+@media (hover:hover){.noteitem:hover{background:var(--hover)}}
+.noteitem.is-dragging{opacity:.55;background:var(--hover)}
+.note-c{position:relative;display:flex;align-items:center;min-width:0;padding:8px 12px;font-size:13px;line-height:19px;overflow-wrap:anywhere}
+.note-c+.note-c{border-inline-start:1px solid var(--headband)}
+.note-grip,.note-end{padding-inline:2px;justify-content:center;border-inline-start:0}
+.note-end+.note-c,.note-c+.note-grip{border-inline-start:0}
+.note-empty{color:var(--line-firm)}
+.note-date .c-date{font-size:13px}
+.noteitem:hover .dragh,.noteitem:hover .btn-arch{opacity:1}
+body.can-edit .note-c[data-edit]{cursor:text}
+body.can-edit .note-c.note-date{cursor:pointer}
+@media (hover:hover){body.can-edit .note-c[data-edit]:hover{box-shadow:inset 0 0 0 1px var(--line-firm)}}
+.note-c.is-editing{box-shadow:inset 0 0 0 2px var(--accent);background:var(--board)}
+/* the text column is wide enough to edit in place; the date column is not, so
+   its editor floats out of the cell the way a sub task's does */
+.note-date>.ed{position:absolute;z-index:55;inset-block-start:100%;inset-inline-end:0;min-width:240px;max-width:min(320px,calc(100vw - 32px));padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--board);box-shadow:0 4px 8px rgba(0,0,0,.2)}
+.note-confirm{grid-column:1/-1;padding:8px 12px}
+.btn-add-note{min-height:32px;margin-block-start:8px;border:1px dashed var(--line-firm);border-radius:4px;background:var(--board)}
+
 /* --- 6. dialogs ---------------------------------------------------------- */
 
 .scrim{position:fixed;inset:0;z-index:80;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;background:rgba(50,51,56,.5)}
@@ -554,6 +586,75 @@ body.can-edit .sub-c.sub-st:hover{box-shadow:inset 0 0 0 2px rgba(255,255,255,.6
 /* the way in, sitting with the legend it edits */
 .lg-edit{margin-inline-start:auto}
 
+/* --- 6c. the meeting summaries archive ------------------------------------ */
+
+/* The list of summaries and the reader for one of them. On a screen with room
+   the list is a column beside the board; on a narrow one the same markup
+   becomes a drawer over it, because they both open this board on a phone.
+   Which of the two it is is decided entirely here, so app-summaries.js only
+   ever has to know whether the thing is showing. */
+.sumbtn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--line-firm);border-radius:999px;background:var(--board);font:inherit;font-size:12px;line-height:16px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.sumbtn:hover{border-color:var(--accent);color:var(--accent)}
+.sumrail{display:none}
+body.sums-on .sumrail{display:block}
+.sumrail-in{border:1px solid var(--line);border-radius:8px;background:var(--board)}
+.sumrail-head{display:flex;align-items:center;gap:8px;padding:12px 14px 6px}
+.sumrail-head h2{margin:0;font-size:14px;font-weight:600;line-height:20px}
+.sumrail-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin-inline-start:auto;padding:0;border:0;border-radius:4px;background:none;color:var(--ink2);cursor:pointer}
+.sumrail-x:hover{background:var(--hover);color:var(--ink)}
+.sumrail-x svg{width:14px;height:14px}
+.sumrail-lead{margin:0;padding:0 14px 8px;font-size:11.5px;line-height:16px;color:var(--ink2)}
+.sumlist{list-style:none;margin:0;padding:0 8px 10px;display:flex;flex-direction:column;gap:2px;max-height:min(62vh,560px);overflow:auto}
+.sumrow{display:flex;flex-direction:column;gap:2px;width:100%;padding:8px 10px;border:0;border-radius:6px;background:none;font:inherit;color:var(--ink);text-align:start;cursor:pointer}
+.sumrow:hover{background:var(--hover)}
+.sumrow-date{font-size:11.5px;font-weight:700;line-height:16px;color:var(--ink2)}
+.sumrow-title{font-size:13px;line-height:18px}
+.sumscrim{display:none}
+
+/* wide: a real column, so nothing is covered and nothing has to be dismissed.
+   The first track is the inline start one, which on this RTL page is the right
+   hand side of the screen, which is where the list belongs. */
+@media (min-width:1240px){
+/* dense, because the rail comes after the board in the markup (the board is the
+   main content and reads first) and would otherwise be pushed to a row of its
+   own rather than sitting beside it */
+body.sums-on main.shell{display:grid;grid-template-columns:252px minmax(0,1fr);column-gap:20px;align-items:start;grid-auto-flow:row dense}
+body.sums-on main.shell>.banners,body.sums-on main.shell>.invite,body.sums-on main.shell>noscript,body.sums-on main.shell>.pagefoot{grid-column:1/-1}
+body.sums-on main.shell>.board{grid-column:2}
+body.sums-on main.shell>.sumrail{grid-column:1;position:sticky;inset-block-start:16px;margin-block:24px 0}
+}
+
+/* narrow: the same list as a drawer, with a backdrop to dismiss it */
+@media (max-width:1239px){
+body.sums-on .sumrail{position:fixed;z-index:70;inset-block:0;inset-inline-start:0;width:min(340px,88vw);padding:12px;overflow:auto;background:var(--page);box-shadow:0 0 24px rgba(0,0,0,.25)}
+body.sums-on .sumscrim{display:block;position:fixed;z-index:65;inset:0;background:rgba(50,51,56,.45)}
+.sumlist{max-height:none}
+}
+
+/* the reader. Below the dock on purpose, the same way the dialogs are, so a
+   failure message is never hidden behind a summary. */
+.sumview{position:fixed;z-index:82;inset:0;display:none;align-items:stretch;justify-content:center;padding:16px 12px;background:rgba(50,51,56,.55)}
+.sumview.is-on{display:flex;padding-block-end:calc(16px + var(--dockh,0px))}
+/* The card takes the height it is given rather than the height of its content:
+   an iframe has no intrinsic height worth having, so without this the reader
+   collapses to a 150px strip of a document that is pages long. */
+.sumcard{display:flex;flex-direction:column;width:100%;max-width:980px;height:100%;border-radius:12px;background:var(--board);box-shadow:0 6px 20px rgba(0,0,0,.25);overflow:hidden}
+.sumcard-head{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-block-end:1px solid var(--line)}
+.sumcard-titles{min-width:0}
+.sumcard-when{display:block;font-size:11.5px;font-weight:700;line-height:16px;color:var(--ink2)}
+.sumcard-title{margin:0;font-size:16px;font-weight:600;line-height:22px}
+.sumcard-x{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:none;margin-inline-start:auto;padding:0;border:0;border-radius:4px;background:none;color:var(--ink2);cursor:pointer}
+.sumcard-x:hover{background:var(--hover);color:var(--ink)}
+.sumcard-x svg{width:16px;height:16px}
+.sumcard-body{flex:1 1 auto;min-height:0;display:flex;background:var(--page)}
+/* the summary is a document of its own, with its own stylesheet, so it is kept
+   in a frame that cannot run anything and cannot repaint the board around it */
+.sumframe{flex:1 1 auto;width:100%;min-height:0;border:0;background:#FFFFFF}
+.sumstate{margin:auto;display:flex;flex-direction:column;gap:6px;padding:32px 24px;text-align:center;font-size:13.5px;line-height:20px}
+.sumstate b{font-size:15px;font-weight:600;line-height:22px}
+.sumstate span{color:var(--ink2)}
+.sumstate.is-bad b{color:#8B2B44}
+
 /* --- 7. phone ------------------------------------------------------------ */
 
 @media (max-width:900px){
@@ -631,6 +732,25 @@ body.can-edit .sub-c[data-edit]:empty::after{content:'הקש להוספה';displ
 .sub-c>.ed{position:static;min-width:0;max-width:none;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
 .subempty{padding:6px 0}
 .btn-add-sub{margin-block-start:8px}
+/* the points block on a phone: the same cards the sub tasks turn into, with the
+   point itself on its own line and the date under it */
+.notes{padding:0 12px 12px}
+.notelist{border:0;border-radius:0;background:none}
+.noteitem{grid-template-columns:1fr auto;border:1px solid var(--line);border-inline-start:4px solid var(--line-firm);border-radius:8px;background:var(--board)}
+.noteitem+.noteitem{margin-block-start:8px;border-block-start:1px solid var(--line)}
+.note-c{display:block;padding:2px 12px;border-inline-start:0}
+.note-c+.note-c{border-inline-start:0}
+.note-text{order:1;grid-column:1/-1;padding-block-start:8px;font-size:14px}
+.note-date{order:2;grid-column:1;padding-block-end:8px}
+.note-date[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;line-height:15px;color:var(--ink2)}
+.note-date.is-editing[data-label]::before{content:none}
+.note-end{order:3;grid-column:2;padding-block-end:8px;text-align:end}
+.note-grip{order:9;grid-column:1/-1;justify-content:flex-start;padding-block-end:8px}
+.note-grip .dragh,.note-end .btn-arch{opacity:1}
+/* the floating date editor would be clipped by the card, so it goes back to
+   sitting inside the cell it belongs to */
+.note-c>.ed{position:static;min-width:0;max-width:none;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.btn-add-note{margin-block-start:8px}
 .dock{inset-block-end:12px;padding-inline:8px}
 .savebar{padding:8px 10px 8px 12px;gap:8px}
 .savebar-note{display:none}
@@ -672,7 +792,8 @@ body{background:#FFFFFF}
 thead th{position:static}
 .grp,tbody tr,tfoot tr,.subitem{break-inside:avoid}
 td.st,.bat,.sw,.av,.btnlink,.due-dot,.sub-st,.subroll-bar>span{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.dragh,.btn-quiet,.btn-add,.btn-arch,.dock,.iconbtn,.mode,.scrim,.picker,.banners,.invite,.subtoggle,.lg-edit{display:none !important}
+.dragh,.btn-quiet,.btn-add,.btn-arch,.dock,.iconbtn,.mode,.scrim,.picker,.banners,.invite,.subtoggle,.lg-edit,.sumbtn,.sumrail,.sumscrim,.sumview{display:none !important}
+.grp,.noteitem{break-inside:avoid}
 /* on paper nothing is collapsed, the sub tasks belong in the printout */
 tr.subrow[hidden]{display:table-row !important}
 }
@@ -689,6 +810,7 @@ tr.subrow[hidden]{display:table-row !important}
 <div class="barend">
 <span class="stamp" id="stamp"></span>
 <span class="stamp" id="lastsave"></span>
+<button type="button" class="sumbtn" id="sumbtn" data-sum-toggle="1" aria-expanded="false" hidden>סיכומי פגישות</button>
 <button type="button" class="mode" id="mode" data-settings="1" title="הלוח לקריאה בלבד. לחץ כדי לאפשר עריכה."><span class="mode-dot" aria-hidden="true"></span>לקריאה בלבד</button>
 <button type="button" class="iconbtn" data-settings="1" aria-label="הרשאת עריכה ללוח" title="הרשאת עריכה ללוח"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v1.8M10 15.7v1.8M17.5 10h-1.8M4.3 10H2.5M15.3 4.7l-1.3 1.3M6 14l-1.3 1.3M15.3 15.3 14 14M6 6 4.7 4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
 </div>
@@ -697,12 +819,15 @@ tr.subrow[hidden]{display:table-row !important}
 <div class="banners" id="banners"></div>
 <div class="invite" id="invite" hidden><span class="invite-ico" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v1.8M10 15.7v1.8M17.5 10h-1.8M4.3 10H2.5M15.3 4.7l-1.3 1.3M6 14l-1.3 1.3M15.3 15.3 14 14M6 6 4.7 4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="invite-body"></span><button type="button" class="btn invite-act" data-settings="1">אפשר עריכה</button></div>
 <div class="board" id="board"><p class="empty">טוען את הלוח...</p></div>
+<aside class="sumrail" id="sumrail" aria-label="סיכומי פגישות" hidden></aside>
 <noscript><p class="empty">הלוח נבנה בדפדפן, ולכן צריך JavaScript מופעל כדי לראות אותו. התוכן שלו פרטי ודורש הרשאה, כך שאין דרך לפתוח אותו בלי זה.</p></noscript>
 <footer class="pagefoot">
 <span class="person"><span class="av av-xs" style="background:#175A63" title="אדם" aria-hidden="true">א</span><b>אדם</b></span><span>מתחזק את הלוח ברקע. הדף קורא את <code dir="ltr">data.json</code> מהאתר עצמו ובונה ממנו את הטבלה. כל עריכה נשמרת מעצמה חזרה ל-GitHub, בלי ללחוץ על כלום, כך שאיתן, נדב ואדם עובדים על אותו מקור אמת.</span>
 </footer>
 </main>
 <div class="dock" id="dock" aria-live="polite"></div>
+<div class="sumscrim" id="sumscrim"></div>
+<div class="sumview" id="sumview"></div>
 <div class="scrim" id="settings" role="dialog" aria-modal="true"
      aria-labelledby="settingsTitle">
 <div class="dlg">
@@ -868,7 +993,13 @@ Developer settings.</p>
   NA.SUB_STATUS_ORDER = ["todo", "working", "stuck", "done"];
   NA.SUB_STATUS_DEFAULT = "todo";
 
-  NA.GROUP_COLOR = { projects: "#216EDF", expenses: "#037F4C", archive: "#757575" };
+  // The group title is painted in its group's own colour at 14px/700, which is
+  // below the size WCAG counts as large text, so every colour here has to clear
+  // 4.5:1 against white on its own. #A25DDC, the purple this block first used,
+  // measures 4.09:1 and does not. #9D50DD is the purple the design spec's own
+  // content-colour table lists, and it measures 4.54:1.
+  NA.GROUP_COLOR = { projects: "#216EDF", expenses: "#037F4C", archive: "#757575",
+                     notes: "#9D50DD" };
 
   // One stable color per person, monday content colors that all clear AA with
   // white initials. Assigned per person, never per row.
@@ -1286,6 +1417,10 @@ Developer settings.</p>
       t.archivedAt = a.archivedAt;
       return t;
     });
+    // The notes block is only rebuilt when it is really there, so a board
+    // nobody has written a point on serializes byte for byte the way it always
+    // did and the key simply never appears. See app-notes.js.
+    if (NA.tidyNotes && data.notes) out.notes = NA.tidyNotes(data.notes);
     return JSON.stringify(out, null, 2) + "\n";
   };
 
@@ -2046,6 +2181,348 @@ Developer settings.</p>
 
 })(window.NA);
 
+/* app-notes.js
+   "מה שסיכמנו בינינו": the model behind the free points block.
+
+   These are the things Eytan and Nadav agree between themselves and have to
+   remember, that belong to no project and therefore to no row of the board.
+   They are a flat list of short texts with a date, and nothing else.
+
+   This file owns the data, the change log and the merge. The markup and the
+   clicks live in app-notes-ui.js, the same way app-legend.js owns the legend
+   and app-legend-ui.js owns its dialog.
+
+   Two rules govern everything here.
+
+   1. The key may be missing. The live board will load this code before
+      data.json has grown a "notes" key, so every read below treats an absent
+      block as an empty one and nothing ever assumes the shape exists.
+   2. Two people edit at once. app-merge.js used to take the server's copy of
+      every top level key it had no editor for, which would swallow this block
+      whole: one person's point would silently overwrite the other's. So the
+      block is reconciled per item, per field, on the same three way rule the
+      projects use, in NA.mergeNotes below.
+
+   Identity
+   ---------------------------------------------------------------------------
+   Every item carries its own "id" in the file, minted once when the point is
+   added and never rewritten. That is what lets the merge line an item up with
+   its counterpart on the server after either side has retyped its text, and it
+   is what the change log and the DOM key off too, so there is exactly one
+   identity scheme rather than three. An item that somehow arrives without an
+   id (a hand edited file) falls back to its position in the list, which is the
+   same guess app-sync.js makes when it seeds a base by position.
+*/
+(function (NA) {
+  "use strict";
+
+  NA.NOTE_KEYS = ["id", "text", "date"];
+  NA.NOTE_FIELD_HE = { text: "הנקודה", date: "התאריך של הנקודה" };
+  NA.NOTES_TITLE = "מה שסיכמנו בינינו";
+  NA.NOTES_SUBTITLE = "דברים שחשוב לזכור, ולא שייכים למשימה של פרויקט מסוים";
+
+  // The two fields a person can actually change. "id" is on NOTE_KEYS for the
+  // serializer's benefit only and is never compared, merged or reported.
+  var FIELDS = ["text", "date"];
+
+  /* --- reading a block that may not be there ----------------------------- */
+
+  NA.notesBlock = function (data) {
+    var d = data === undefined ? NA.S.data : data;
+    var block = d && d.notes;
+    return (block && typeof block === "object") ? block : null;
+  };
+
+  NA.noteItems = function (data) {
+    var block = NA.notesBlock(data);
+    return (block && Array.isArray(block.items)) ? block.items : [];
+  };
+
+  // The block, created on first use. Only ever called by an actual edit, so a
+  // board nobody has added a point to keeps the exact shape it has today and
+  // its data.json diff stays empty.
+  NA.ensureNotes = function () {
+    var data = NA.S.data;
+    if (!data) return null;
+    var block = NA.notesBlock(data);
+    if (!block) {
+      block = { title: NA.NOTES_TITLE, subtitle: NA.NOTES_SUBTITLE, items: [] };
+      data.notes = block;
+    }
+    if (!Array.isArray(block.items)) block.items = [];
+    return block;
+  };
+
+  // Unique without a server round trip and without a collision when both of
+  // them add a point offline at the same second: the clock says roughly when,
+  // the random tail says which.
+  NA.newNoteId = function () {
+    var rand = Math.floor(Math.random() * 1679616).toString(36);
+    while (rand.length < 4) rand = "0" + rand;
+    return "n" + Date.now().toString(36) + rand;
+  };
+
+  // What everything matches on. An id when the item has one, a position when
+  // it does not, computed identically for the live tree, the base and the
+  // server's copy so the three can never disagree about who is who.
+  function keyOf(item, index) {
+    return (item && item.id) ? "#" + item.id : "@" + index;
+  }
+  NA.noteKey = keyOf;
+
+  function indexBy(items) {
+    var map = {};
+    items.forEach(function (item, i) { map[keyOf(item, i)] = item; });
+    return map;
+  }
+
+  // The point itself, shortened for a commit message or a conflict panel.
+  function short(text) {
+    var s = String(text === null || text === undefined ? "" : text).trim();
+    if (!s) return "נקודה ריקה";
+    return s.length > 40 ? s.slice(0, 40) + "..." : s;
+  }
+  NA.noteShort = short;
+
+  /* --- serialization ----------------------------------------------------- */
+
+  // Canonical shape, so the file stays diff friendly and an emptied point does
+  // not serialize a null into a list of texts. Called from NA.serialize.
+  NA.tidyNotes = function (block) {
+    var out = {};
+    out.title = block.title || NA.NOTES_TITLE;
+    if (block.subtitle) out.subtitle = block.subtitle;
+    out.items = (Array.isArray(block.items) ? block.items : []).map(function (item) {
+      var row = {};
+      if (item.id) row.id = item.id;
+      row.text = (item.text === null || item.text === undefined) ? "" : String(item.text);
+      if (item.date) row.date = item.date;
+      return row;
+    });
+    return out;
+  };
+
+  /* --- the version the edits are measured against ------------------------ */
+  //
+  // Derived from NA.S.baseText rather than kept as a per item snapshot, for the
+  // same reason the legend derives its own: baseText is moved forward by
+  // app-save.js and app-sync.js at exactly the right moments, so this can never
+  // drift out of step with the rest of the board, and no new hook is needed in
+  // NA.initBase or NA.captureBase.
+
+  var baseCache = { text: null, block: null };
+
+  // The one wrinkle, copied from app-legend.js because it is the same wrinkle:
+  // during a merge baseText is still the old text, while the change log is
+  // recomputed at the end of the merge. So the merge hands the version it
+  // reconciled against forward, for that single recompute, and it expires by
+  // itself as soon as baseText moves.
+  var handedBase = null;
+  var handedFor = null;
+
+  function baseBlock() {
+    var text = NA.S.baseText, parsed;
+    if (handedBase !== null && handedFor === text) return handedBase;
+    handedBase = null;
+    // Before the first load there is nothing to compare against, and answering
+    // with the live block means "no changes", which is the truthful answer.
+    if (!text) return NA.notesBlock();
+    if (baseCache.text !== text) {
+      try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
+      baseCache.text = text;
+      baseCache.block = NA.notesBlock(parsed);
+    }
+    return baseCache.block;
+  }
+  NA.notesBase = baseBlock;
+
+  function hand(block) {
+    handedBase = block ? NA.clone(block) : null;
+    handedFor = NA.S.baseText;
+  }
+
+  /* --- the change log ---------------------------------------------------- */
+
+  function sameOrder(baseItems, liveItems) {
+    var baseMap = indexBy(baseItems);
+    var liveKeys = liveItems.map(keyOf).filter(function (k) { return !!baseMap[k]; });
+    var liveMap = indexBy(liveItems);
+    var baseKeys = baseItems.map(keyOf).filter(function (k) { return !!liveMap[k]; });
+    if (baseKeys.length !== liveKeys.length) return true;   // a different set
+    for (var i = 0; i < baseKeys.length; i++) {
+      if (baseKeys[i] !== liveKeys[i]) return false;
+    }
+    return true;
+  }
+
+  // Derived from base versus live, never accumulated, exactly like the legend.
+  // That is what makes a point typed back to what it was stop counting, and it
+  // is what lets the merge and the conflict panel rewrite the list without the
+  // change log drifting.
+  NA.recomputeNoteChanges = function () {
+    Object.keys(NA.S.changes).forEach(function (k) {
+      if (k.indexOf("note:") === 0) delete NA.S.changes[k];
+    });
+    if (!NA.S.data) return;
+    var base = baseBlock(), mine = NA.notesBlock();
+    handedBase = null;      // used up: from here on the base comes from baseText
+    var baseItems = (base && Array.isArray(base.items)) ? base.items : [];
+    var liveItems = (mine && Array.isArray(mine.items)) ? mine.items : [];
+    var baseMap = indexBy(baseItems), seen = {};
+
+    liveItems.forEach(function (item, i) {
+      var key = keyOf(item, i), was = baseMap[key];
+      seen[key] = 1;
+      if (!was) {
+        NA.mark("note:add:" + key, 'נקודה חדשה בסיכומים: "' + short(item.text) + '"');
+        return;
+      }
+      FIELDS.forEach(function (f) {
+        if (NA.eqValue(was[f], item[f])) return;
+        NA.mark("note:" + key + ":" + f,
+          NA.NOTE_FIELD_HE[f] + ' של "' + short(item.text) + '"');
+      });
+    });
+
+    baseItems.forEach(function (item, i) {
+      var key = keyOf(item, i);
+      if (seen[key]) return;
+      NA.mark("note:del:" + key, 'מחיקת נקודה: "' + short(item.text) + '"');
+    });
+
+    if (!sameOrder(baseItems, liveItems)) {
+      NA.mark("note:order", "שינוי סדר הנקודות בסיכומים");
+    }
+  };
+
+  /* --- two people writing points at once --------------------------------- */
+
+  // The same three way rule as the rest of the board, per item, per field:
+  //
+  //   text   the one value a person typed in words, so a genuine two sided
+  //          change is a real conflict and goes to the conflict panel with both
+  //          texts spelled out.
+  //   date   quieter. If this page moved it, it stands; otherwise the server's
+  //          wins. Nobody needs interrupting over which day a point was agreed.
+  //
+  // An item only one side has is settled by intent rather than by presence: one
+  // added here survives, one deleted here stays deleted, one the other side
+  // added is adopted, and one the other side deleted is adopted as deleted only
+  // when this page did not edit it in the meantime. That last rule is the safe
+  // direction: keeping a point that somebody else removed is a line of text to
+  // delete again, losing one that somebody else was editing is typing nobody
+  // can get back.
+  NA.mergeNotes = function (fresh, report) {
+    if (!NA.S.data) return;
+    var freshBlock = (fresh && typeof fresh === "object") ? fresh : null;
+    var live = NA.notesBlock();
+    var base = baseBlock();
+
+    if (!live) {
+      // The key grew on the server while this page was open, or this page has
+      // simply never touched it. Either way there is nothing of ours to lose.
+      if (freshBlock) { NA.S.data.notes = NA.clone(freshBlock); report.pulled++; }
+      hand(freshBlock);
+      return;
+    }
+
+    // The heading and the sub heading have no editor anywhere on the board, so
+    // the server is simply right about them.
+    if (freshBlock) {
+      if (freshBlock.title !== undefined) live.title = freshBlock.title;
+      if (freshBlock.subtitle !== undefined) live.subtitle = freshBlock.subtitle;
+    }
+    if (!Array.isArray(live.items)) live.items = [];
+
+    var freshItems = (freshBlock && Array.isArray(freshBlock.items))
+      ? freshBlock.items : [];
+    var baseItems = (base && Array.isArray(base.items)) ? base.items : [];
+    var baseMap = indexBy(baseItems), freshMap = indexBy(freshItems);
+    var kept = [], taken = {};
+
+    live.items.forEach(function (item, i) {
+      var key = keyOf(item, i), was = baseMap[key], theirs = freshMap[key];
+      if (theirs) taken[key] = 1;
+      if (!was) { kept.push(item); return; }        // added here, nothing to reconcile
+      if (!theirs) {
+        // Deleted there. Untouched here, so the deletion is the only opinion
+        // anybody holds about it.
+        if (unchanged(item, was)) { report.pulled++; return; }
+        kept.push(item);
+        return;
+      }
+      mergeItem(item, was, theirs, report);
+      kept.push(item);
+    });
+    live.items = kept;
+
+    freshItems.forEach(function (item, i) {
+      var key = keyOf(item, i);
+      if (taken[key]) return;
+      if (baseMap[key]) return;                     // deleted here on purpose
+      live.items.push(NA.clone(item));
+      report.pulled++;
+    });
+
+    mergeOrder(live, baseItems, freshItems);
+    hand(freshBlock);
+  };
+
+  function unchanged(item, was) {
+    for (var i = 0; i < FIELDS.length; i++) {
+      if (!NA.eqValue(item[FIELDS[i]], was[FIELDS[i]])) return false;
+    }
+    return true;
+  }
+
+  function mergeItem(mine, was, theirs, report) {
+    var iMoved = !NA.eqValue(mine.text, was.text);
+    var theyMoved = !NA.eqValue(theirs.text, was.text);
+    if (!iMoved && theyMoved) {
+      mine.text = theirs.text;
+      report.pulled++;
+    } else if (iMoved && theyMoved && !NA.eqValue(mine.text, theirs.text)) {
+      report.conflicts.push({
+        where: NA.NOTES_TITLE,
+        label: NA.NOTE_FIELD_HE.text,
+        field: "text",
+        object: mine,
+        mine: mine.text,
+        theirs: theirs.text
+      });
+    }
+
+    var iDated = !NA.eqValue(mine.date, was.date);
+    var theyDated = !NA.eqValue(theirs.date, was.date);
+    if (!iDated && theyDated) {
+      if (theirs.date === undefined) delete mine.date;
+      else mine.date = theirs.date;
+      report.pulled++;
+    }
+  }
+
+  // One decision about the whole list rather than a value per row, settled the
+  // same way: if this page reordered the points, its order stands; otherwise
+  // the server's order is applied to the items both sides hold, and anything
+  // either side added alone keeps its place at the end.
+  function mergeOrder(live, baseItems, freshItems) {
+    if (!sameOrder(baseItems, live.items)) return;   // this page moved it
+    var freshOrder = freshItems.map(keyOf), rest = [], ordered = [];
+    var mineMap = indexBy(live.items), used = {};
+    freshOrder.forEach(function (key) {
+      if (!mineMap[key] || used[key]) return;
+      used[key] = 1;
+      ordered.push(mineMap[key]);
+    });
+    live.items.forEach(function (item, i) {
+      if (used[keyOf(item, i)]) return;
+      rest.push(item);
+    });
+    live.items = ordered.concat(rest);
+  }
+
+})(window.NA);
+
 /* app-render.js
    The one and only renderer. Builds the whole monday-style board from the
    fetched data.json. Ported field for field from the Python renderer that
@@ -2206,6 +2683,9 @@ Developer settings.</p>
     out.push('<div class="grp-body" id="' + NA.esc(gid) + '">');
     return out;
   }
+  // The notes block is a group like any other, so it opens itself the same way
+  // rather than growing a second, slightly different section header.
+  NA.groupOpen = groupOpen;
 
   function tableOpen(headers, widths, centered) {
     var out = ["<table>"], cells = [], i, cls;
@@ -2545,6 +3025,10 @@ Developer settings.</p>
     if (Array.isArray(data.archived) && data.archived.length) {
       html.push(archiveGroup(data.archived));
     }
+    // What the two of them agreed between themselves, below every project and
+    // above the way out to the expenses sheet. data.notes may not exist at all
+    // yet, and NA.notesGroup is written to cope with that rather than assume it.
+    if (NA.notesGroup) html.push(NA.notesGroup(NA.notesBlock(data)));
     html.push(expensesGroup(data.expensesSheet));
     document.getElementById("board").innerHTML = html.join("\n");
 
@@ -2553,6 +3037,9 @@ Developer settings.</p>
       "</bdi></b>";
 
     applyCollapsed(collapsed);
+    // The summaries rail lives outside #board, so a render never destroys an
+    // open summary, but the list itself still has to follow the data.
+    if (NA.renderSummaries) NA.renderSummaries();
     NA.renderBanners();
     NA.renderSaveBar();
     NA.wireBoard();
@@ -2604,10 +3091,12 @@ Developer settings.</p>
     NA.S.focusKey = null;
     if (!key) return;
     // A sub task cell carries its project's uid too, so the selector has to say
-    // out loud which of the two levels it means.
-    var sel = key.sub
-      ? '[data-sub="' + key.sub + '"][data-edit="' + key.field + '"]'
-      : '[data-uid="' + key.uid + '"]:not([data-sub])[data-edit="' + key.field + '"]';
+    // out loud which of the two levels it means. A point in the notes block
+    // belongs to no project at all and is found by its own key.
+    var sel;
+    if (key.note) sel = '[data-note="' + key.note + '"][data-edit="' + key.field + '"]';
+    else if (key.sub) sel = '[data-sub="' + key.sub + '"][data-edit="' + key.field + '"]';
+    else sel = '[data-uid="' + key.uid + '"]:not([data-sub])[data-edit="' + key.field + '"]';
     var el = document.querySelector(sel);
     if (el) el.focus();
   }
@@ -3194,6 +3683,483 @@ Developer settings.</p>
 
 })(window.NA);
 
+/* app-notes-ui.js
+   The "מה שסיכמנו בינינו" block as it appears on the board: one group between
+   the projects and the link to the expenses sheet, holding a list of points
+   with a date on each.
+
+   It deliberately owns no editor of its own. A point's text and its date are
+   edited by the very same inline editors app-edit.js already uses for a project
+   field, reached through the same data-edit hooks, so the two levels of the
+   board and this third one can never drift apart in how they behave.
+
+   The model, the change log and the merge live in app-notes.js.
+*/
+(function (NA) {
+  "use strict";
+
+  var GRIP =
+    '<svg viewBox="0 0 16 16" width="12" height="16" fill="currentColor" ' +
+    'aria-hidden="true" focusable="false">' +
+    '<circle cx="5.5" cy="4" r="1.35"/><circle cx="10.5" cy="4" r="1.35"/>' +
+    '<circle cx="5.5" cy="8" r="1.35"/><circle cx="10.5" cy="8" r="1.35"/>' +
+    '<circle cx="5.5" cy="12" r="1.35"/><circle cx="10.5" cy="12" r="1.35"/></svg>';
+
+  var TRASH =
+    '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">' +
+    '<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8a1 1 0 0 0 1 .9h3.8a1 1 0 0 0 1-.9' +
+    'l.6-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" ' +
+    'stroke-linejoin="round"/></svg>';
+
+  /* --- finding a point ---------------------------------------------------- */
+
+  // Everything on screen refers to a point by the same key app-notes.js merges
+  // on, so a click, a change log entry and a merge are all talking about the
+  // same thing.
+  NA.findNote = function (key) {
+    var items = NA.noteItems(), i;
+    for (i = 0; i < items.length; i++) {
+      if (NA.noteKey(items[i], i) === key) return { item: items[i], at: i };
+    }
+    return null;
+  };
+
+  /* --- markup ------------------------------------------------------------- */
+
+  function hook(key, field) {
+    if (!NA.S.canEdit) return "";
+    return ' data-edit="' + field + '" data-note="' + NA.esc(key) +
+      '" tabindex="0" role="button"';
+  }
+
+  function noteItem(item, index) {
+    var key = NA.noteKey(item, index);
+    var formatted = NA.fmtDate(item.date);
+    var out = ['<li class="noteitem" data-drag-item="' + NA.esc(key) +
+      '" data-noteitem="' + NA.esc(key) + '">'];
+
+    out.push('<span class="note-c note-grip">' +
+      '<button type="button" class="dragh" tabindex="0" aria-label="' +
+      NA.esc("שינוי סדר: " + NA.noteShort(item.text) +
+        ". גוררים את הנקודה, או מזיזים אותה עם חצי מעלה ומטה") +
+      '" title="' + NA.esc("גוררים לשינוי סדר, או חצים מעלה ומטה") + '"' +
+      (NA.S.canEdit ? "" : " hidden") + ">" + GRIP + "</button></span>");
+
+    out.push('<span class="note-c note-text"' + hook(key, "text") + ">" +
+      (item.text
+        ? '<span class="c-val">' + NA.inline(item.text) + "</span>"
+        : '<span class="note-empty">נקודה ריקה. אפשר לכתוב כאן, או למחוק אותה.</span>') +
+      "</span>");
+
+    out.push('<span class="note-c note-date" data-label="' + NA.esc("תאריך") + '"' +
+      hook(key, "date") + ">" +
+      (formatted
+        ? '<span class="c-date"><bdi>' + formatted + "</bdi></span>"
+        : '<span class="c-none" aria-hidden="true">–</span>') + "</span>");
+
+    out.push('<span class="note-c note-end">' + (NA.S.canEdit
+      ? '<button type="button" class="btn-arch" data-note-del="' + NA.esc(key) +
+        '" aria-label="' + NA.esc("מחק את הנקודה: " + NA.noteShort(item.text)) +
+        '" title="מחק את הנקודה">' + TRASH + "</button>"
+      : "") + "</span>");
+
+    out.push("</li>");
+    return out.join("");
+  }
+
+  // Rendered from app-render.js, directly above the expenses link. Takes the
+  // block straight off data.json and coped with it being absent entirely, which
+  // is the state the live board will be in the moment this code ships.
+  NA.notesGroup = function (block) {
+    var items = NA.noteItems();
+    // A reader with nothing to read gets nothing at all, exactly the way a
+    // project with no sub tasks gets no sub task area.
+    if (!items.length && !NA.S.canEdit) return "";
+
+    var title = NA.inline((block && block.title) || NA.NOTES_TITLE);
+    var subtitle = (block && block.subtitle) || NA.NOTES_SUBTITLE;
+    var out = NA.groupOpen("g-notes", NA.GROUP_COLOR.notes, title, items.length, "");
+
+    out.push('<div class="notes">');
+    out.push('<p class="notes-lead">' + NA.inline(subtitle) + "</p>");
+    if (items.length) {
+      out.push('<ul class="notelist" data-drag-list="notes">');
+      items.forEach(function (item, i) { out.push(noteItem(item, i)); });
+      out.push("</ul>");
+    } else {
+      out.push('<p class="subempty">אין עדיין נקודות. מה שסוכם ביניכם ולא שייך ' +
+        "לשום פרויקט נרשם כאן.</p>");
+    }
+    if (NA.S.canEdit) {
+      out.push('<button type="button" class="btn-add btn-add-note" ' +
+        'data-note-add="1"><span class="plus" aria-hidden="true">+</span>' +
+        "נקודה חדשה</button>");
+    }
+    out.push("</div>");
+    out.push("</div></section>");
+    return out.join("\n");
+  };
+
+  /* --- actions ------------------------------------------------------------ */
+
+  function addNote() {
+    var block = NA.ensureNotes();
+    if (!block) return;
+    var item = { id: NA.newNoteId(), text: "", date: NA.today() };
+    // Newest first: the point somebody just agreed is the one he is about to
+    // type, and it lands where he is already looking.
+    block.items.unshift(item);
+    NA.recomputeNoteChanges();
+    NA.afterChange();
+    var key = NA.noteKey(item, 0);
+    var cell = document.querySelector('[data-note="' + key + '"][data-edit="text"]');
+    if (cell) {
+      cell.scrollIntoView({ block: "center" });
+      NA.openEditorAt(cell);
+    }
+  }
+
+  // Two steps, the same promise the projects and the sub tasks make: the first
+  // click only asks. A point is small enough that there is nowhere sensible to
+  // archive it to, so this one really does remove it, and the confirmation says
+  // so out loud rather than borrowing the archive's softer wording.
+  function askDelete(key) {
+    var found = NA.findNote(key);
+    if (!found) return;
+    var row = document.querySelector('[data-noteitem="' + key + '"]');
+    if (!row) return;
+    row.innerHTML = '<div class="confirm note-confirm"><span>למחוק את הנקודה "' +
+      NA.esc(NA.noteShort(found.item.text)) + '"?</span>' +
+      '<button type="button" class="btn btn-danger" data-note-yes="1">כן, מחק</button>' +
+      '<button type="button" class="btn btn-plain" data-note-no="1">ביטול</button>' +
+      '<span class="ed-hint">נקודה נמחקת לגמרי, בלי ארכיון. אם היא עוד רלוונטית, ' +
+      "עדיף לערוך אותה.</span></div>";
+    row.querySelector("[data-note-yes]").addEventListener("click", function () {
+      doDelete(key);
+    });
+    row.querySelector("[data-note-no]").addEventListener("click", function () {
+      NA.render();
+    });
+  }
+
+  function doDelete(key) {
+    var found = NA.findNote(key), block = NA.notesBlock();
+    if (!found || !block) return;
+    block.items.splice(found.at, 1);
+    NA.recomputeNoteChanges();
+    NA.afterChange();
+  }
+
+  // Called by the shared drag machinery in app-drag.js once a drop lands inside
+  // the notes list. Same contract as both other levels: read the order back off
+  // the DOM, and never let a point fall out of the list.
+  NA.commitNoteOrder = function (container) {
+    var block = NA.notesBlock();
+    if (!block) return;
+    var order = Array.prototype.filter.call(container.children, function (el) {
+      return el.hasAttribute && el.hasAttribute("data-drag-item");
+    }).map(function (el) { return el.getAttribute("data-drag-item"); });
+    var byKey = {};
+    block.items.forEach(function (item, i) { byKey[NA.noteKey(item, i)] = item; });
+    var next = [];
+    order.forEach(function (k) { if (byKey[k]) { next.push(byKey[k]); delete byKey[k]; } });
+    block.items.forEach(function (item, i) {
+      if (byKey[NA.noteKey(item, i)]) next.push(item);
+    });
+    block.items = next;
+    NA.recomputeNoteChanges();
+    NA.afterChange();
+  };
+
+  // The single entry point app-edit.js calls from its click handler, exactly
+  // like NA.subClick. Returns true when it has taken the click.
+  NA.notesClick = function (e) {
+    if (!NA.S.canEdit) return false;
+    var hit = e.target.closest("[data-note-add]");
+    if (hit) { addNote(); return true; }
+
+    hit = e.target.closest("[data-note-del]");
+    if (hit) { askDelete(hit.getAttribute("data-note-del")); return true; }
+
+    return false;
+  };
+
+})(window.NA);
+
+/* app-summaries.js
+   The meeting summaries archive: a list beside the board, newest first, and a
+   full screen reader for whichever one is clicked.
+
+   Where the files live, and why it matters
+   ---------------------------------------------------------------------------
+   A summary names clients, quotes fees and repeats things said out loud in a
+   meeting. None of that may sit in baritzy/newangle-board, which is public
+   because GitHub Pages will not serve a private repo for free, and where
+   robots.txt is a request rather than a lock.
+
+   So the files live in the private data repo, next to data.json, under
+   summaries/, and they are read here through exactly the authenticated
+   Contents API call app-sync.js uses for data.json itself. The token each of
+   them already holds covers this repo and nothing else, so no new permission
+   and no new token is involved.
+
+   data.json carries the index only: a date, a title and a path. Missing key
+   means an empty archive, never a crash, because the live board will load this
+   code before the data has grown the key.
+
+   Why the summary is shown inside a sandboxed iframe
+   ---------------------------------------------------------------------------
+   Each summary is a standalone HTML document with its own stylesheet, written
+   for a page of its own. Dropping that into the board would let its CSS repaint
+   the board around it. An iframe with a srcdoc keeps the two documents apart,
+   and the sandbox attribute without allow-scripts means nothing in the file can
+   run, reach the board, or reach the token in localStorage. Popups are allowed
+   so a link inside a summary still opens, and nothing else is.
+*/
+(function (NA) {
+  "use strict";
+
+  // Whether the rail is showing. A view preference, per browser, never part of
+  // the shared data.
+  NA.SUMS_KEY = "na-board-sums-v1";
+  var WIDE = "(min-width:1240px)";
+
+  var cache = {};        // path -> the decoded HTML, so reopening is instant
+  var open = null;       // the summary on screen right now
+  var wired = false;
+
+  var XICON =
+    '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">' +
+    '<path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" ' +
+    'stroke-linecap="round"/></svg>';
+
+  /* --- the index ---------------------------------------------------------- */
+
+  // Newest first, whatever order the file happens to hold them in, and every
+  // row checked rather than trusted: this list is written by a build script and
+  // read by a board that must not break when the two disagree.
+  NA.summaries = function () {
+    var raw = (NA.S.data && NA.S.data.summaries) || [];
+    if (!Array.isArray(raw)) return [];
+    var out = raw.filter(function (row) {
+      return row && typeof row === "object" && row.file;
+    }).slice();
+    out.sort(function (a, b) {
+      return String(b.date || "").localeCompare(String(a.date || ""));
+    });
+    return out;
+  };
+
+  function isOn() {
+    var stored = NA.readStore(NA.SUMS_KEY);
+    if (stored === "1") return true;
+    if (stored === "0") return false;
+    // Never asked: open on a screen with room for it, closed on a phone, which
+    // is the behaviour of every side panel he has ever used.
+    try { return window.matchMedia(WIDE).matches; } catch (e) { return false; }
+  }
+
+  function setOn(value) {
+    NA.writeStore(NA.SUMS_KEY, value ? "1" : "0");
+    paintState(value);
+  }
+
+  function paintState(on) {
+    var list = NA.summaries();
+    var btn = document.getElementById("sumbtn");
+    document.body.classList.toggle("sums-on", !!(on && list.length));
+    if (!btn) return;
+    btn.hidden = !list.length;
+    btn.setAttribute("aria-expanded", on ? "true" : "false");
+    btn.title = on ? "הסתר את סיכומי הפגישות" : "הצג את סיכומי הפגישות";
+  }
+
+  /* --- the rail ----------------------------------------------------------- */
+
+  // Lives outside #board on purpose, so a board render never destroys it and
+  // an open summary is never torn out from under the reader by a save landing.
+  NA.renderSummaries = function () {
+    var host = document.getElementById("sumrail");
+    if (!host) return;
+    wire();
+    var list = NA.summaries();
+    host.hidden = !list.length;
+    if (!list.length) { paintState(false); return; }
+
+    var rows = list.map(function (row) {
+      var when = NA.fmtDate(row.date) || row.date || "";
+      return '<li><button type="button" class="sumrow" data-sum="' +
+        NA.esc(row.file) + '"><span class="sumrow-date"><bdi>' + NA.esc(when) +
+        "</bdi></span><span class=\"sumrow-title\">" +
+        NA.inline(row.title || "סיכום פגישה") + "</span></button></li>";
+    }).join("");
+
+    host.innerHTML =
+      '<div class="sumrail-in">' +
+      '<div class="sumrail-head"><h2>סיכומי פגישות</h2>' +
+      '<button type="button" class="sumrail-x" data-sum-hide="1" ' +
+      'aria-label="הסתר את רשימת הסיכומים">' + XICON + "</button></div>" +
+      '<p class="sumrail-lead">מהחדש לישן. נקרא מהמאגר הפרטי, לא מהאתר.</p>' +
+      '<ul class="sumlist">' + rows + "</ul>" +
+      "</div>";
+
+    paintState(isOn());
+    wire();
+  };
+
+  /* --- reading one ------------------------------------------------------- */
+
+  function cardShell(row, bodyHtml) {
+    var when = NA.fmtDate(row.date) || row.date || "";
+    return '<div class="sumcard" role="dialog" aria-modal="true" ' +
+      'aria-label="' + NA.esc(row.title || "סיכום פגישה") + '">' +
+      '<div class="sumcard-head">' +
+      '<div class="sumcard-titles"><span class="sumcard-when"><bdi>' +
+      NA.esc(when) + "</bdi></span>" +
+      '<h2 class="sumcard-title">' + NA.inline(row.title || "סיכום פגישה") +
+      "</h2></div>" +
+      '<button type="button" class="sumcard-x" data-sum-close="1" ' +
+      'aria-label="סגור את הסיכום">' + XICON + "</button></div>" +
+      '<div class="sumcard-body">' + bodyHtml + "</div></div>";
+  }
+
+  function paint(row, bodyHtml) {
+    var host = document.getElementById("sumview");
+    if (!host) return;
+    host.innerHTML = cardShell(row, bodyHtml);
+    host.classList.add("is-on");
+    var x = host.querySelector(".sumcard-x");
+    if (x) x.focus();
+  }
+
+  function state(kind, title, detail) {
+    return '<div class="sumstate is-' + kind + '"><b>' + NA.esc(title) + "</b>" +
+      (detail ? "<span>" + NA.esc(detail) + "</span>" : "") + "</div>";
+  }
+
+  // The document itself, dropped into an isolated frame. srcdoc is set as a
+  // property rather than written into the markup, so the summary's own quotes
+  // and angle brackets need no escaping and cannot break out of the attribute.
+  function showDoc(html) {
+    var host = document.getElementById("sumview");
+    if (!host) return;
+    var body = host.querySelector(".sumcard-body");
+    if (!body) return;
+    var frame = document.createElement("iframe");
+    frame.className = "sumframe";
+    frame.setAttribute("sandbox", "allow-popups allow-popups-to-escape-sandbox");
+    frame.setAttribute("title", "תוכן הסיכום");
+    frame.setAttribute("referrerpolicy", "no-referrer");
+    body.innerHTML = "";
+    body.appendChild(frame);
+    frame.srcdoc = html;
+  }
+
+  function whyFailed(err) {
+    var status = err && err.status;
+    if (status === 404) {
+      return ["הקובץ לא נמצא במאגר הפרטי.",
+        "יכול להיות שהוא נמחק, או שהשם ב-data.json לא תואם לשם הקובץ."];
+    }
+    if (status === 401 || status === 403) {
+      return ["אין להרשאה שבדפדפן הזה זכות לקרוא את הקובץ.",
+        "אותה הרשאה שקוראת את הלוח קוראת גם את הסיכומים, אז כדאי לפתוח את " +
+        "ההגדרות ולבדוק אותה."];
+    }
+    if (status) return ["GitHub החזיר שגיאה " + status + ".", ""];
+    return ["לא הצלחנו להגיע ל-GitHub.",
+      String((err && err.message) || err || "")];
+  }
+
+  function openSummary(file) {
+    var list = NA.summaries(), row = null, i;
+    for (i = 0; i < list.length; i++) if (list[i].file === file) row = list[i];
+    if (!row) return;
+    open = row;
+
+    if (cache[file]) { paint(row, ""); showDoc(cache[file]); return; }
+
+    paint(row, state("wait", "טוען את הסיכום...",
+      "הקובץ נקרא מהמאגר הפרטי, זה לוקח רגע."));
+
+    if (!NA.S.token) {
+      paint(row, state("bad", "אין הרשאה שמורה בדפדפן הזה.",
+        "הסיכומים יושבים במאגר פרטי, ולכן צריך את אותה הרשאה שפותחת את הלוח."));
+      return;
+    }
+
+    NA.api("/repos/" + NA.REPO + "/contents/" + encodePath(file) +
+           "?ref=main&t=" + Date.now())
+      .then(function (r) {
+        if (!r.ok) {
+          var err = new Error("HTTP " + r.status);
+          err.status = r.status;
+          throw err;
+        }
+        return r.json();
+      })
+      .then(function (payload) {
+        var html = NA.unb64(payload.content || "");
+        cache[file] = html;
+        if (open !== row) return;       // he moved on while it was in the air
+        paint(row, "");
+        showDoc(html);
+      })
+      .catch(function (err) {
+        if (open !== row) return;
+        var said = whyFailed(err);
+        paint(row, state("bad", said[0], said[1]));
+      });
+  }
+
+  // The path carries Hebrew and, one day, a space. Each segment is encoded on
+  // its own so the slashes survive.
+  function encodePath(file) {
+    return String(file).split("/").map(encodeURIComponent).join("/");
+  }
+
+  NA.summaryIsOpen = function () {
+    var host = document.getElementById("sumview");
+    return !!(host && host.classList.contains("is-on"));
+  };
+
+  NA.closeSummary = function () {
+    var host = document.getElementById("sumview");
+    if (!host) return;
+    open = null;
+    host.classList.remove("is-on");
+    host.innerHTML = "";
+    var btn = document.getElementById("sumbtn");
+    if (btn && !btn.hidden) btn.focus();
+  };
+
+  /* --- wiring ------------------------------------------------------------- */
+
+  // Its own listener rather than a branch in app-edit.js, because everything
+  // here lives outside #board and none of it is an edit. Idempotent, so calling
+  // it on every render costs nothing.
+  function wire() {
+    if (wired) return;
+    wired = true;
+    document.addEventListener("click", function (e) {
+      var hit = e.target.closest("[data-sum]");
+      if (hit) { openSummary(hit.getAttribute("data-sum")); return; }
+      if (e.target.closest("[data-sum-close]")) { NA.closeSummary(); return; }
+      if (e.target.closest("[data-sum-hide]")) { setOn(false); return; }
+      if (e.target.closest("[data-sum-toggle]")) {
+        setOn(!document.body.classList.contains("sums-on"));
+        return;
+      }
+      // The backdrop, on a phone, is the obvious way out of the drawer.
+      if (e.target.id === "sumview") { NA.closeSummary(); return; }
+      if (e.target.id === "sumscrim") { setOn(false); }
+    }, false);
+  }
+
+  NA.wireSummaries = wire;
+
+})(window.NA);
+
 /* app-edit.js
    Inline editing, monday style: click a cell, edit it where it sits, nothing
    leaves the board. Every commit updates the in-memory board, adds one entry
@@ -3203,8 +4169,12 @@ Developer settings.</p>
 (function (NA) {
   "use strict";
 
-  var MULTILINE = { revenue: 1, waitingOn: 1, nextStep: 1, statusDetail: 1, notes: 1 };
-  var DATEFIELD = { lastTouched: 1, deadline: 1, start: 1, due: 1 };
+  // "text" and "date" belong to a point in the notes block rather than to a
+  // project or a sub task, and they are listed here for the same reason every
+  // other field is: so the one editor knows which shape of input to open.
+  var MULTILINE = { revenue: 1, waitingOn: 1, nextStep: 1, statusDetail: 1, notes: 1,
+                    text: 1 };
+  var DATEFIELD = { lastTouched: 1, deadline: 1, start: 1, due: 1, date: 1 };
   var wired = false;
   var openCell = null;   // the cell currently holding an inline editor
   var openPicker = null; // the floating status/owner panel, if any
@@ -3231,6 +4201,15 @@ Developer settings.</p>
   // data-sub. Resolving that once here is what lets every editor below stay
   // completely unaware that sub tasks exist.
   function targetOf(el) {
+    // A point in the notes block is the third thing an editor can be opened on.
+    // It belongs to no project, so it carries neither uid, and it says so with
+    // its own attribute.
+    var noteKey = el.getAttribute("data-note");
+    if (noteKey) {
+      var note = NA.findNote ? NA.findNote(noteKey) : null;
+      if (!note) return null;
+      return { obj: note.item, project: null, sub: false, note: noteKey };
+    }
     var subUid = el.getAttribute("data-sub");
     if (subUid) {
       var found = NA.findSub(subUid);
@@ -3242,15 +4221,20 @@ Developer settings.</p>
   }
 
   function labelOf(target, field) {
+    if (target.note) return NA.NOTE_FIELD_HE[field] || field;
     return (target.sub ? NA.SUB_FIELD_HE : NA.FIELD_HE)[field] || field;
   }
 
   function markOf(target, field) {
+    // The notes block derives its whole change log from base versus live in one
+    // pass, the way the legend does, so there is no per field mark to make.
+    if (target.note) { NA.recomputeNoteChanges(); return; }
     if (target.sub) NA.markSub(target.project, target.obj, field);
     else NA.markField(target.obj, field);
   }
 
   function focusOf(target, field) {
+    if (target.note) return { note: target.note, field: field };
     return {
       uid: NA.uid(target.project),
       sub: target.sub ? NA.uid(target.obj) : null,
@@ -3302,6 +4286,9 @@ Developer settings.</p>
     // Sub tasks get first refusal. The expand chevron works with no token at
     // all, so this sits above the read only gate on purpose.
     if (NA.subClick(e)) return;
+    // The notes block gates itself on canEdit, exactly like the sub tasks do,
+    // so it is asked in the same place and in the same way.
+    if (NA.notesClick && NA.notesClick(e)) return;
     if (!NA.S.canEdit) return;
 
     hit = t.closest("[data-archive]");
@@ -3340,8 +4327,9 @@ Developer settings.</p>
     if (e.key === "Escape") {
       if (openPicker) { closePicker(); return; }
       if (openCell) { cancelEditor(); return; }
-      // Innermost first, the same as every other Escape on this page: the
-      // legend dialog is the thing on top when it is open.
+      // Innermost first, the same as every other Escape on this page: an open
+      // summary covers everything, then the legend dialog.
+      if (NA.summaryIsOpen && NA.summaryIsOpen()) { NA.closeSummary(); return; }
       if (NA.legendIsOpen && NA.legendIsOpen()) { NA.closeLegend(); return; }
       if (NA.closeSettings) NA.closeSettings();
       return;
@@ -4040,10 +5028,15 @@ Developer settings.</p>
     if (next) next.focus();
   };
 
-  // Route the finished order to whichever level owns the list.
+  // Route the finished order to whichever list owns it. Everything above this
+  // line is shared: the projects, the sub tasks and the points in the notes
+  // block are all reordered by the very same code path, and only the commit at
+  // the end of it knows which array it is writing back.
   function commitList(list) {
-    if (list.getAttribute("data-drag-list") === "sub") NA.commitSubOrder(list);
-    else commitOrder(list);
+    var kind = list.getAttribute("data-drag-list");
+    if (kind === "sub") { NA.commitSubOrder(list); return; }
+    if (kind === "notes") { NA.commitNoteOrder(list); return; }
+    commitOrder(list);
   }
 
   function commitOrder(list) {
@@ -4219,12 +5212,24 @@ Developer settings.</p>
     // server's copy wholesale would throw away a rename or a new status while
     // the change log still claimed it was pending. It gets its own three way
     // merge, per status, in app-legend.js.
+    //
+    // notes is the second exception, and for the identical reason. The block of
+    // points the two of them keep between themselves is edited on the board, so
+    // a blanket copy would swallow one person's point whole the moment the other
+    // saved, silently, with the change log still insisting it was pending. It
+    // gets its own three way merge, per point, per field, in app-notes.js.
+    //
+    // summaries deliberately stays on the blanket rule. It is an index written
+    // only by build.py --add-summary, never by anything in the browser, so the
+    // server's copy is by definition the newer one and there is nothing of ours
+    // in it to lose.
     Object.keys(fresh).forEach(function (k) {
       if (k === "groups" || k === "archived" || k === "updated") return;
-      if (k === "statusLegend") return;
+      if (k === "statusLegend" || k === "notes") return;
       mine[k] = fresh[k];
     });
     if (NA.mergeLegend) NA.mergeLegend(fresh.statusLegend, report);
+    if (NA.mergeNotes) NA.mergeNotes(fresh.notes, report);
     mine.groups[0].id = fresh.groups[0].id;
     mine.groups[0].title = fresh.groups[0].title;
     mine.groups[0].subtitle = fresh.groups[0].subtitle;
@@ -4309,6 +5314,12 @@ Developer settings.</p>
     // the merge kept stays counted. This also covers the conflict panel's "take
     // what the server has" button, which writes straight into a legend entry.
     if (NA.recomputeLegendChanges) NA.recomputeLegendChanges();
+    // The notes block is derived exactly the same way, against the same base,
+    // and for the same three reasons: a point the merge folded away stops being
+    // counted, one the merge kept stays counted, and the conflict panel's "take
+    // what the server has" can write straight into a point without the change
+    // log drifting away from what is really pending.
+    if (NA.recomputeNoteChanges) NA.recomputeNoteChanges();
   };
 
 })(window.NA);
@@ -4400,6 +5411,21 @@ Developer settings.</p>
     return null;
   }
 
+  // The points block is free text a person types, and it goes into the same
+  // commit, so it has to be walked too. Only the text can carry one: the date
+  // is a date input and the id is minted by this page.
+  function notesHit(data) {
+    var items = (data && data.notes && data.notes.items) || [];
+    var i;
+    if (!Array.isArray(items)) return null;
+    for (i = 0; i < items.length; i++) {
+      if (typeof items[i].text === "string" && TOKEN_RE.test(items[i].text)) {
+        return { project: "", field: 'נקודה בבלוק "' + (data.notes.title || "") + '"' };
+      }
+    }
+    return null;
+  }
+
   // { project, field, task } for the first project level or sub task field
   // that carries the token, or null if the structured walk did not find one.
   // That last case should not happen when leakedTokenText found something,
@@ -4410,6 +5436,8 @@ Developer settings.</p>
     var all = [], i, p, field, sub, legend;
     legend = legendHit(data);
     if (legend) return legend;
+    var note = notesHit(data);
+    if (note) return note;
     for (i = 0; i < groups.length; i++) all = all.concat(groups[i].projects || []);
     all = all.concat((data && data.archived) || []);
     for (i = 0; i < all.length; i++) {
